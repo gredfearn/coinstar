@@ -1,0 +1,15 @@
+{
+  "name": "coinstar",
+  "version": "1.0.0",
+  "description": "A lite Crypto Util to check prices of coins.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Crypto",
+    "Coin"
+  ],
+  "author": "Grant Redfearn",
+  "license": "ISC"
+}
