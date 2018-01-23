@@ -5,9 +5,23 @@ export default class App extends React.Component {
 	constructor() {
 		super();
 		this.state.currencies = ["BTC", "ETH", "NEO", "XLM", "XRP", "ARK"];
-		this.state.market = {};
+		this.state.market = this.buildDefaultState(this.state.currencies);
 	}
 
+	buildDefaultState(coins) {
+		let state = {};
+		coins.forEach(coin => {
+		const	obj = {
+				name: coin,
+				value: null,
+				up: true
+			};
+
+			state[coin] = obj;
+		})
+
+		return state;
+	}
 
 	fetchPrice(coin) {
 		const url = `https://min-api.cryptocompare.com/data/price?fsym=${coin}&tsyms=USD,EUR`;
@@ -21,7 +35,8 @@ export default class App extends React.Component {
 				}
 
 				let market = this.state.market;
-				market[coin] = res.body["USD"];
+				market[coin].up =  market[coin].value < res.body["USD"]
+				market[coin].value = res.body["USD"];
 				this.setState({ market });
 			})
 	}
@@ -36,9 +51,6 @@ export default class App extends React.Component {
 	}
 
 	componentWillMount() {
-		this.fetchPrice = this.fetchPrice.bind(this);
-		this.batchCalls = this.batchCalls.bind(this);
-		
 		this.batchCalls(this.state.currencies);
 	}
 
