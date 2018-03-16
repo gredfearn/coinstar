@@ -1,5 +1,6 @@
 import React from 'react';
 import request from 'superagent';
+import { CronJob } from 'cron';
 
 export default class App extends React.Component {
   constructor() {
@@ -23,6 +24,7 @@ export default class App extends React.Component {
     return state;
   }
 
+
   fetchPrice(coin) {
     const url = `https://min-api.cryptocompare.com/data/price?fsym=${coin}&tsyms=USD,EUR`;
     request
@@ -42,6 +44,7 @@ export default class App extends React.Component {
 }
 
   batchCalls(coins) {
+    console.log('Coins!', coins);
     let promiseArray = [];
     coins.forEach(coin => {
         promiseArray.push(this.fetchPrice(coin));
@@ -50,21 +53,33 @@ export default class App extends React.Component {
     return Promise.all(promiseArray);
   }
 
-  componentWillMount() {
-    this.batchCalls(this.state.currencies);
-    this.retrievePricesInterval(10000);
-  }
+  intervalFetchCoins(coins) {
+    const job = new CronJob({
+       cronTime: '*/10 * * * * *',
+       onTick: () => this.batchCalls(coins),
+       start: true,
+       timeZone: 'America/Chicago',
+       runOnInit: true,
+     });
+    };
 
-  retrievePricesInterval(interval) {
-      setInterval(interval, this.batchCalls(this.state.currencies))
+  componentWillMount() {
+    this.intervalFetchCoins(this.state.currencies);
   }
 
   render() {
-    console.log('this.state!', this.state);
-    return (
-      <div>
-        <h1>Hello World</h1>
-      </div>
-    );
+    if (this.state && this.state.market) {
+      return (
+        <div>
+          {this.state.currencies.map((coin, idx) => (
+            <div>
+              <h1>{this.state.market[coin].name}</h1>
+              <h1>{this.state.market[coin].value}</h1>
+            </div>
+          ))}
+        </div>
+      )
+    }
+    return null;
   }
 }
